@@ -13,9 +13,9 @@ const options = {
 	rangeX: 200,
 	rangeY: 200,
 	rangeZ: 100,
-	velocity: 0.1,
-	angle: 0.1,
-	angular: 0.05,
+	velocityX: 0.03,
+	velocityY: 0.1,
+	angleX: 0.1,
 	snowSpritePath: './textures/snow.png',
 	spritePath: './textures/OCTad_Xmas.png',
 }
@@ -82,8 +82,9 @@ function render() {
 
 		// Generate random velocity based on values defined
 		var vertexData = {
-			"velocity": getRandomArbitrary(-options.velocity - 0.1, -options.velocity + 0.05),
-			"angle": getRandomArbitrary(-options.angle - 0.1, -options.angle + 0.1)
+			"vX": getRandomArbitrary(-options.velocityX - 0.01, Math.min(-options.velocityX + 0.01, -0.01)),
+			"vY": getRandomArbitrary(-options.velocityY - 0.1, Math.min(-options.velocityY + 0.1, -0.1)),
+			"a": getRandomArbitrary(-options.angleX - 0.1, Math.min(-options.angleX + 0.1, -0.01))
 		}
 		particlesData.push(vertexData);
 
@@ -108,10 +109,10 @@ function render() {
 			const object = scene.children[i];
 
 			// Particle Velocity Calculation
-			const vY = particlesData[i].velocity;
-			const angle = particlesData[i].angle;
-			const vX = Math.sin(time * angle) * Math.cos(time * 2 * angle) * options.angular;
-			// const vZ = Math.sin(-time * aV) * Math.cos(time * aV) * 0.1;
+			const vY = particlesData[i].vY;
+			const angle = particlesData[i].a;
+			const vX = Math.sin(time * angle) * Math.cos(time * 2 * angle) * particlesData[i].vX;
+			// const vZ = Math.sin(-time * angle) * Math.cos(time * angle) * 0.1;
 
 			// Translate particles based on calculated velocity values
 			object.translateY(vY);
