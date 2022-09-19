@@ -6,15 +6,18 @@ const options = {
 	fog: true,
 	particleCount: 1000,
 	ratio: 0.05,
-	snowSize: 1,
+	snowSize: 3,
 	spriteSize: 6,
 	sizeAttenuation: true,
+	alphaTest: 0.1,
 	rangeX: 200,
 	rangeY: 200,
 	rangeZ: 100,
 	velocity: 0.1,
 	angle: 0.1,
-	angular: 0.05
+	angular: 0.05,
+	snowSpritePath: './textures/snow.png',
+	spritePath: './textures/OCTad_Xmas.png',
 }
 
 // Checks for WebGL support
@@ -53,19 +56,16 @@ function render() {
 
 	// Environment and Camera Settings
 	scene.background = new THREE.Color(options.backgroundColor);
-	if (options.fog) scene.fog = new THREE.Fog(options.backgroundColor, options.rangeZ, options.rangeZ*2);
+	if (options.fog) {scene.fog = new THREE.Fog(options.backgroundColor, options.rangeZ, options.rangeZ*2)};
 	camera.position.z = options.rangeZ;
 
-	// Create Materials
-	const basicMaterial = new THREE.MeshBasicMaterial({color: 0xffffff});
+	// Load Sprites
+	const snowSprite = new THREE.TextureLoader().load(options.snowSpritePath);
+	const sprite = new THREE.TextureLoader().load(options.spritePath);
 
-	const sprite = new THREE.TextureLoader().load('/textures/OCTad_Xmas.png');
-	const pointsMaterial = new THREE.PointsMaterial({ 	size: options.spriteSize,
-														sizeAttenuation: options.sizeAttenuation,
-														map: sprite,
-														alphaTest: 0.5,
-														transparent: true
-													});
+	// Create Materials
+	const snowMat = newPointsMaterial(options.snowSize, snowSprite);
+	const spriteMat = newPointsMaterial(options.spriteSize, sprite);
 
 	var particlesData = []
 
@@ -74,7 +74,6 @@ function render() {
 
 		// Create geometry
 		const bufferGeometry = new THREE.BufferGeometry();
-		const circleGeometry = new THREE.CircleGeometry(options.snowSize, 21);
 
 		// Generate random positions based on range defined
 		const x = getRandomArbitrary(-options.rangeX, options.rangeX);
@@ -89,17 +88,13 @@ function render() {
 		particlesData.push(vertexData);
 
 		// Create a sprite every n based on the ratio defined
-		if (i % (options.particleCount / (options.particleCount * options.ratio)) == 0) {
-			const spriteParticle = new THREE.Points(bufferGeometry, pointsMaterial);
-			bufferGeometry.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array([0,0,0]), 3));
-			spriteParticle.position.set(x, y, z);
-			scene.attach(spriteParticle);
+		var bool = i % (options.particleCount / (options.particleCount * options.ratio)) == 0;
 
-		} else { // Otherwise, create a snow particle
-			const snowParticle = new THREE.Mesh(circleGeometry, basicMaterial);
-			snowParticle.position.set(x, y, z);
-			scene.attach(snowParticle);
-		}
+		const material = bool ? spriteMat : snowMat;
+		const spriteParticle = new THREE.Points(bufferGeometry, material);
+		bufferGeometry.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array([0,0,0]), 3));
+		spriteParticle.position.set(x, y, z);
+		scene.attach(spriteParticle);
 	}
 
 	const tick = () => // Animation Loop
@@ -107,6 +102,7 @@ function render() {
 		const time = Date.now() * 0.001;
 
 		// For each particle, animate falling and waving motion
+		// TODO: Replace with shader based implementation for greater performance
 		for (let i = 0; i < scene.children.length; i ++) {
 
 			const object = scene.children[i];
@@ -133,6 +129,17 @@ function render() {
 	}
 
 	tick();
+}
+
+// Returns new three.js PointsMaterial
+function newPointsMaterial (size, sprite) {
+	return new THREE.PointsMaterial({
+		size: size,
+		sizeAttenuation: options.sizeAttenuation,
+		map: sprite,
+		alphaTest: options.alphaTest,
+		transparent: true
+	});
 }
 
 // Returns random value between min and max 
