@@ -1,4 +1,4 @@
-import WebGL from "/utils/WebGL.js";
+import WebGL from "./utils/WebGL.js";
 
 // OPTIONS CONFIGURATION //
 const options = {
