@@ -1,3 +1,5 @@
+// https://github.com/mrdoob/three.js/blob/master/examples/jsm/capabilities/WebGL.js
+
 class WebGL {
 
 	static isWebGLAvailable() {
