@@ -246,6 +246,8 @@ function updateAttributes() {
 		child.material.dispose();
 	}
 
+	snowMat.uniforms.rangeY.value = options.rangeY;
+	spriteMat.uniforms.rangeY.value = options.rangeY;
 	scene.add(new newParticleSystem( snowMat, options.particleCount - (options.particleCount * options.ratio) ));
 	scene.add(new newParticleSystem( spriteMat, options.particleCount - (options.particleCount * (1.0 - options.ratio)) ));
 }
