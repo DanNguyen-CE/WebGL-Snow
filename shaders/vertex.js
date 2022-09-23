@@ -7,8 +7,8 @@ uniform float amount;
 uniform float rangeY;
 
 attribute float scale;
-attribute float velocityX;
 attribute float velocityY;
+attribute float amplitudeX;
 attribute float angle;
 
 bool isPerspectiveMatrix( mat4 m ) {
@@ -21,15 +21,11 @@ void main() {
 
   vec3 newPos = position;
 
-  // Sawtooth Type Wave Function
-  float indexRatio = position.y / rangeY;
-  float threshold = 0.7 + indexRatio * 0.3;
-  float ratio = mod((uTime * -velocityY * 0.01) - indexRatio, threshold);
-
-  newPos.y += mix(rangeY, -rangeY, ratio / threshold);
-
+  // Modulo Operation Function
+  newPos.y = mod(position.y - (uTime * -velocityY * 10.0), rangeY) - rangeY/2.0;
+  
   // Sine Type Wave Function
-  newPos.x += sin(uTime * angle) * cos(uTime * 2.0 * angle) * (velocityX * 10.0);
+  newPos.x += sin(uTime * angle) * cos(uTime * 2.0 * angle) * (amplitudeX * 10.0);
 
   gl_Position = projectionMatrix * modelViewMatrix * vec4(newPos, 1.0);
 
