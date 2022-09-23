@@ -94,8 +94,8 @@ function render() {
 	spriteMat = newParticleMaterial(options.spriteSize, sprite);
 
 	// Create Particle Systems
-	const snowParticleSystem = newParticleSystem(snowMat, options.particleCount - (options.particleCount * options.ratio));
-	const spriteParticleSystem = newParticleSystem(spriteMat, options.particleCount - (options.particleCount * (1.0 - options.ratio)));
+	const snowParticleSystem = newParticleSystem(snowMat, Math.round(options.particleCount * (1.0 - options.ratio)));
+	const spriteParticleSystem = newParticleSystem(spriteMat, Math.round(options.particleCount * options.ratio));
 	
 	// Add to Render Scene
 	scene.add(snowParticleSystem);
@@ -178,7 +178,6 @@ function newParticleMaterial (size, sprite) {
 			[{
 				uTime: { value: 0 },
 				size: { value: size },
-				amount: { value: options.particleCount },
 				rangeY: { value: options.rangeY },
 				map: { value: sprite },
 				alphaTest: { value: options.alphaTest },
@@ -223,7 +222,7 @@ function createGUI () {
 
 	// SIMULATION //
 	var sim = gui.addFolder('Simulation');
-	sim.add(options, "particleCount", 1, 1000000).onFinishChange(updateAttributes);
+	sim.add(options, "particleCount", 1, 1000000, 1000).onFinishChange(updateAttributes);
 	sim.add(options, "rangeX", 100, 1000).onFinishChange(updateAttributes);
 	sim.add(options, "rangeY", 100, 1000).onFinishChange(updateAttributes);
 	sim.add(options, "rangeZ", 100, 1000).onFinishChange(updateAttributes);
@@ -248,8 +247,8 @@ function updateAttributes() {
 
 	snowMat.uniforms.rangeY.value = options.rangeY;
 	spriteMat.uniforms.rangeY.value = options.rangeY;
-	scene.add(new newParticleSystem( snowMat, options.particleCount - (options.particleCount * options.ratio) ));
-	scene.add(new newParticleSystem( spriteMat, options.particleCount - (options.particleCount * (1.0 - options.ratio)) ));
+	scene.add(new newParticleSystem(snowMat, Math.round(options.particleCount * (1.0 - options.ratio))));
+	scene.add(new newParticleSystem(spriteMat, Math.round(options.particleCount * options.ratio)));
 }
 
 function updateSprite() {
