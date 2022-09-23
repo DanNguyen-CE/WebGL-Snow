@@ -17,8 +17,8 @@ const options = {
 	fogRange: 80,
 	particleCount: 2000,
 	ratio: 0.05,
-	snowSize: 4,
-	spriteSize: 6,
+	snowSize: 2,
+	spriteSize: 3,
 	sizeAttenuation: true,
 	alphaTest: 0.85,
 	cameraPositionZ: 100,
@@ -40,7 +40,7 @@ if (WebGL.isWebGLAvailable()) {
 
 	var windowAspectRatio = windowWidth/windowHeight
 
-	var scale = windowHeight / 2;
+	var scale = windowHeight;
 
 	var scene = new THREE.Scene();
 	var camera = new THREE.PerspectiveCamera(75, windowAspectRatio, 0.1, 1000);
@@ -62,7 +62,7 @@ if (WebGL.isWebGLAvailable()) {
 // Initialize renderer
 function init() {
 	renderer.setSize(windowWidth, windowHeight);
-	// renderer.setPixelRatio(window.devicePixelRatio);
+	renderer.setPixelRatio(window.devicePixelRatio);
 	document.body.appendChild(renderer.domElement);
 	window.addEventListener('resize', onWindowResize);
 
@@ -128,7 +128,7 @@ function render() {
 function newParticleSystem (material, particleCount) {
 
 	const bufferGeometry = new THREE.BufferGeometry();
-	const scales = new Float32Array(particleCount).fill(scale);
+	var scales = new Float32Array(particleCount).fill(scale);
 	const position = [];
 	const velocityY = [];
 	const amplitudeX = [];
@@ -158,8 +158,6 @@ function newParticleSystem (material, particleCount) {
 	bufferGeometry.setAttribute('velocityY', new THREE.Float32BufferAttribute(velocityY, 1));
 	bufferGeometry.setAttribute('amplitudeX', new THREE.Float32BufferAttribute(amplitudeX, 1));
 	bufferGeometry.setAttribute('angle', new THREE.Float32BufferAttribute(angleX, 1));
-	bufferGeometry.attributes.position.needsUpdate = true;
-	bufferGeometry.attributes.scale.needsUpdate = true;
 
 	return new THREE.Points(bufferGeometry, material);
 }
@@ -222,13 +220,13 @@ function createGUI () {
 
 	// SIMULATION //
 	var sim = gui.addFolder('Simulation');
-	sim.add(options, "particleCount", 1, 1000000, 1000).onFinishChange(updateAttributes);
-	sim.add(options, "rangeX", 100, 1000).onFinishChange(updateAttributes);
-	sim.add(options, "rangeY", 100, 1000).onFinishChange(updateAttributes);
-	sim.add(options, "rangeZ", 100, 1000).onFinishChange(updateAttributes);
-	sim.add(options, "velocityY", -1, 20).onFinishChange(updateAttributes);
-	sim.add(options, "amplitudeX", -1, 20).onFinishChange(updateAttributes);
-	sim.add(options, "angleX",  0, 3).onFinishChange(updateAttributes);
+	sim.add(options, "particleCount", 1, 1000000, 1000).onFinishChange(remakeSystem);
+	sim.add(options, "rangeX", 100, 1000).onFinishChange(remakeSystem);
+	sim.add(options, "rangeY", 100, 1000).onFinishChange(remakeSystem);
+	sim.add(options, "rangeZ", 100, 1000).onFinishChange(remakeSystem);
+	sim.add(options, "velocityY", -1, 20).onFinishChange(remakeSystem);
+	sim.add(options, "amplitudeX", -1, 20).onFinishChange(remakeSystem);
+	sim.add(options, "angleX",  0, 3).onFinishChange(remakeSystem);
 
 	var sprites = gui.addFolder('Sprites');
 	sprites.add(options, "ratio", 0.0, 1.0, 0.01).onFinishChange(updateSprite);
@@ -236,7 +234,7 @@ function createGUI () {
 	sprites.add(options, "spriteSize", 0, 20).onFinishChange(updateSprite);
 }
 
-function updateAttributes() {
+function remakeSystem() {
 
 	while (scene.children.length > 0) {
 		const child = scene.children[0];
@@ -256,13 +254,22 @@ function updateSprite() {
 	snowMat = newParticleMaterial(options.snowSize, snowSprite);
 	spriteMat = newParticleMaterial(options.spriteSize, sprite);
 
-	updateAttributes();
+	remakeSystem();
 }
 
 // Updates scene render size to always fit window
 function onWindowResize() {
 	windowWidth = window.visualViewport.width;
 	windowHeight = window.visualViewport.height;
+
+	scale = windowHeight;
+
+	for (let i = 0; i < scene.children.length; i++) {
+		const child = scene.children[i];
+		const scales = new Float32Array(child.geometry.getAttribute('position').count).fill(scale);
+		child.geometry.setAttribute('scale', new THREE.Float32BufferAttribute(scales, 1));
+		bufferGeometry.attributes.scale.needsUpdate = true;
+	}
 
 	camera.aspect = windowWidth / windowHeight;
 	camera.updateProjectionMatrix();
