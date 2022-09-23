@@ -240,8 +240,10 @@ function createGUI () {
 function updateAttributes() {
 
 	while (scene.children.length > 0) {
-		scene.children[0].geometry.dispose();
-		scene.remove(scene.children[0]);
+		const child = scene.children[0];
+		scene.remove(child);
+		child.geometry.dispose();
+		child.material.dispose();
 	}
 
 	scene.add(new newParticleSystem(snowMat, options.particleCount));
