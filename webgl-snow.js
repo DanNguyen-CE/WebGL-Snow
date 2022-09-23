@@ -144,8 +144,8 @@ function newParticleSystem (material, particleCount) {
 		}
 
 		// Generate random velocities based on range defined
-		const vY = THREE.MathUtils.randFloat(-options.velocityY - 0.1, Math.min(-options.velocityY + 0.1, -0.1));
-		const aX = THREE.MathUtils.randFloat(-options.amplitudeX - 0.01, Math.min(-options.amplitudeX + 0.01, -0.01));
+		const vY = THREE.MathUtils.randFloat(-options.velocityY - 1, Math.min(-options.velocityY + 1, 0));
+		const aX = THREE.MathUtils.randFloat(Math.max(options.amplitudeX - 1, 0), options.amplitudeX + 1);
 		const a = THREE.MathUtils.randFloat(options.angleX - 0.1, options.angleX + 0.1);
 		
 		velocityY.push(vY);
@@ -226,8 +226,8 @@ function createGUI () {
 	sim.add(options, "rangeX", 100, 1000).onFinishChange(updateAttributes);
 	sim.add(options, "rangeY", 100, 1000).onFinishChange(updateAttributes);
 	sim.add(options, "rangeZ", 100, 1000).onFinishChange(updateAttributes);
-	sim.add(options, "velocityY", 0, 20).onFinishChange(updateAttributes);
-	sim.add(options, "amplitudeX", 0, 20).onFinishChange(updateAttributes);
+	sim.add(options, "velocityY", -1, 20).onFinishChange(updateAttributes);
+	sim.add(options, "amplitudeX", -1, 20).onFinishChange(updateAttributes);
 	sim.add(options, "angleX",  0, 3).onFinishChange(updateAttributes);
 
 	var sprites = gui.addFolder('Sprites');
