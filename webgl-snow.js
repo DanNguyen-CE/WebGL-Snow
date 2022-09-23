@@ -94,8 +94,8 @@ function render() {
 	spriteMat = newParticleMaterial(options.spriteSize, sprite);
 
 	// Create Particle Systems
-	const snowParticleSystem = newParticleSystem(snowMat, options.particleCount);
-	const spriteParticleSystem = newParticleSystem(spriteMat, options.particleCount * options.ratio);
+	const snowParticleSystem = newParticleSystem(snowMat, options.particleCount - (options.particleCount * options.ratio));
+	const spriteParticleSystem = newParticleSystem(spriteMat, options.particleCount - (options.particleCount * (1.0 - options.ratio)));
 	
 	// Add to Render Scene
 	scene.add(snowParticleSystem);
@@ -233,6 +233,7 @@ function createGUI () {
 	sim.add(options, "angleX",  0, 3).onFinishChange(updateAttributes);
 
 	var sprites = gui.addFolder('Sprites');
+	sprites.add(options, "ratio", 0.0, 1.0, 0.01).onFinishChange(updateSprite);
 	sprites.add(options, "snowSize", 0, 20).onFinishChange(updateSprite);
 	sprites.add(options, "spriteSize", 0, 20).onFinishChange(updateSprite);
 }
@@ -246,8 +247,9 @@ function updateAttributes() {
 		child.material.dispose();
 	}
 
-	scene.add(new newParticleSystem(snowMat, options.particleCount));
-	scene.add(new newParticleSystem(spriteMat, options.particleCount));
+
+	scene.add(new newParticleSystem( snowMat, options.particleCount - (options.particleCount * options.ratio) ));
+	scene.add(new newParticleSystem( spriteMat, options.particleCount - (options.particleCount * (1.0 - options.ratio)) ));
 }
 
 function updateSprite() {
