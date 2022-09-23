@@ -59,7 +59,7 @@ if (WebGL.isWebGLAvailable()) {
 // Initialize renderer
 function init() {
 	renderer.setSize(windowWidth, windowHeight);
-	renderer.setPixelRatio(window.devicePixelRatio);
+	// renderer.setPixelRatio(window.devicePixelRatio);
 	document.body.appendChild(renderer.domElement);
 	window.addEventListener('resize', onWindowResize);
 	
@@ -85,7 +85,7 @@ function render() {
 	const spriteMat = newParticleMaterial(options.spriteSize, sprite);
 
 	// Create Particle Systems
-	const snowParticleSystem = newParticleSystem(snowMat, options.particleCount);
+	const snowParticleSystem = newParticleSystem(snowMat, options.particleCount * (1.0 - options.ratio));
 	const spriteParticleSystem = newParticleSystem(spriteMat, options.particleCount * options.ratio);
 	
 	// Add to Render Scene
@@ -95,8 +95,8 @@ function render() {
 	const clock = new THREE.Clock();
 	const tick = () => // Update Loop
 	{
-
 		const time = clock.getElapsedTime()
+
 		snowMat.uniforms.uTime.value = time;
 		spriteMat.uniforms.uTime.value = time;
 
@@ -170,7 +170,6 @@ function newParticleMaterial (size, sprite) {
 				amount: { value: options.particleCount },
 				rangeY: { value: options.rangeY },
 				map: { value: sprite },
-				alpha: { value: 0.5 },
 				alphaTest: { value: options.alphaTest },
 			},
 			THREE.UniformsLib['fog']]),
