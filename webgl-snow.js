@@ -268,7 +268,7 @@ function onWindowResize() {
 		const child = scene.children[i];
 		const scales = new Float32Array(child.geometry.getAttribute('position').count).fill(scale);
 		child.geometry.setAttribute('scale', new THREE.Float32BufferAttribute(scales, 1));
-		bufferGeometry.attributes.scale.needsUpdate = true;
+		child.geometry.attributes.scale.needsUpdate = true;
 	}
 
 	camera.aspect = windowWidth / windowHeight;
