@@ -62,7 +62,7 @@ if (WebGL.isWebGLAvailable()) {
 // Initialize renderer
 function init() {
 	renderer.setSize(windowWidth, windowHeight);
-	renderer.setPixelRatio(window.devicePixelRatio);
+	// renderer.setPixelRatio(window.devicePixelRatio);
 	document.body.appendChild(renderer.domElement);
 	window.addEventListener('resize', onWindowResize);
 
@@ -211,7 +211,7 @@ function createGUI () {
 		value ? 	scene.fog = new THREE.Fog(options.backgroundColor, options.fogRange, options.fogRange * 2) :
 					scene.fog = null;
 	});
-	view.add(options, "fogRange", 0, options.rangeZ).onChange(function (value){
+	view.add(options, "fogRange", 0, 1000).onChange(function (value){
 		options.fog ? 	scene.fog = new THREE.Fog(options.backgroundColor, value, value * 2) :
 						scene.fog = null;
 	});
