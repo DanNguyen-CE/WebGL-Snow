@@ -25,8 +25,8 @@ const options = {
 	rangeX: 400,
 	rangeY: 400,
 	rangeZ: 100,
-	velocityX: 4,
 	velocityY: 2,
+	amplitudeX: 4,
 	angleX: 0,
 	snowSpritePath: './textures/snow.png',
 	spritePath: './textures/OCTad_Xmas.png',
@@ -130,9 +130,9 @@ function newParticleSystem (material, particleCount) {
 	const bufferGeometry = new THREE.BufferGeometry();
 	const scales = new Float32Array(particleCount).fill(scale);
 	const position = [];
-	const velocityX = [];
 	const velocityY = [];
-	const angle = [];
+	const amplitudeX = [];
+	const angleX = [];
 	
 	for (let i = 0; i < particleCount; i++) {
 
@@ -144,20 +144,20 @@ function newParticleSystem (material, particleCount) {
 		}
 
 		// Generate random velocities based on range defined
-		const vX = THREE.MathUtils.randFloat(-options.velocityX - 0.01, Math.min(-options.velocityX + 0.01, -0.01));
 		const vY = THREE.MathUtils.randFloat(-options.velocityY - 0.1, Math.min(-options.velocityY + 0.1, -0.1));
+		const aX = THREE.MathUtils.randFloat(-options.amplitudeX - 0.01, Math.min(-options.amplitudeX + 0.01, -0.01));
 		const a = THREE.MathUtils.randFloat(options.angleX - 0.1, options.angleX + 0.1);
-
-		velocityX.push(vX);
+		
 		velocityY.push(vY);
-		angle.push(a);
+		amplitudeX.push(aX);
+		angleX.push(a);
 	}
 
 	bufferGeometry.setAttribute('position', new THREE.Float32BufferAttribute(position, 3));
 	bufferGeometry.setAttribute('scale', new THREE.Float32BufferAttribute(scales, 1));
-	bufferGeometry.setAttribute('velocityX', new THREE.Float32BufferAttribute(velocityX, 1));
 	bufferGeometry.setAttribute('velocityY', new THREE.Float32BufferAttribute(velocityY, 1));
-	bufferGeometry.setAttribute('angle', new THREE.Float32BufferAttribute(angle, 1));
+	bufferGeometry.setAttribute('amplitudeX', new THREE.Float32BufferAttribute(amplitudeX, 1));
+	bufferGeometry.setAttribute('angle', new THREE.Float32BufferAttribute(angleX, 1));
 	bufferGeometry.attributes.position.needsUpdate = true;
 	bufferGeometry.attributes.scale.needsUpdate = true;
 
@@ -181,7 +181,6 @@ function newParticleMaterial (size, sprite) {
 				amount: { value: options.particleCount },
 				rangeY: { value: options.rangeY },
 				map: { value: sprite },
-				alpha: { value: 0.5 },
 				alphaTest: { value: options.alphaTest },
 			},
 			THREE.UniformsLib['fog']]),
@@ -229,7 +228,7 @@ function createGUI () {
 	sim.add(options, "rangeY", 100, 1000).onFinishChange(updateAttributes);
 	sim.add(options, "rangeZ", 100, 1000).onFinishChange(updateAttributes);
 	sim.add(options, "velocityY", 0, 20).onFinishChange(updateAttributes);
-	sim.add(options, "velocityX", 0, 20).onFinishChange(updateAttributes);
+	sim.add(options, "amplitudeX", 0, 20).onFinishChange(updateAttributes);
 	sim.add(options, "angleX",  0, 3).onFinishChange(updateAttributes);
 
 	var sprites = gui.addFolder('Sprites');
@@ -246,7 +245,6 @@ function updateAttributes() {
 		child.geometry.dispose();
 		child.material.dispose();
 	}
-
 
 	scene.add(new newParticleSystem( snowMat, options.particleCount - (options.particleCount * options.ratio) ));
 	scene.add(new newParticleSystem( spriteMat, options.particleCount - (options.particleCount * (1.0 - options.ratio)) ));
