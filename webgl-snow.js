@@ -17,8 +17,8 @@ const options = {
 	fogRange: 80,
 	particleCount: 2000,
 	ratio: 0.05,
-	snowSize: 4,
-	spriteSize: 6,
+	snowSize: 2,
+	spriteSize: 3,
 	sizeAttenuation: true,
 	alphaTest: 0.85,
 	cameraPositionZ: 100,
@@ -40,7 +40,7 @@ if (WebGL.isWebGLAvailable()) {
 
 	var windowAspectRatio = windowWidth/windowHeight
 
-	var scale = windowHeight / 2;
+	var scale = windowHeight;
 
 	var scene = new THREE.Scene();
 	var camera = new THREE.PerspectiveCamera(75, windowAspectRatio, 0.1, 1000);
@@ -59,7 +59,7 @@ if (WebGL.isWebGLAvailable()) {
 // Initialize renderer
 function init() {
 	renderer.setSize(windowWidth, windowHeight);
-	// renderer.setPixelRatio(window.devicePixelRatio);
+	renderer.setPixelRatio(window.devicePixelRatio);
 	document.body.appendChild(renderer.domElement);
 	window.addEventListener('resize', onWindowResize);
 	
@@ -85,8 +85,8 @@ function render() {
 	const spriteMat = newParticleMaterial(options.spriteSize, sprite);
 
 	// Create Particle Systems
-	const snowParticleSystem = newParticleSystem(snowMat, options.particleCount * (1.0 - options.ratio));
-	const spriteParticleSystem = newParticleSystem(spriteMat, options.particleCount * options.ratio);
+	const snowParticleSystem = newParticleSystem(snowMat, Math.round(options.particleCount * (1.0 - options.ratio)));
+	const spriteParticleSystem = newParticleSystem(spriteMat, Math.round(options.particleCount * options.ratio));
 	
 	// Add to Render Scene
 	scene.add(snowParticleSystem);
@@ -133,8 +133,8 @@ function newParticleSystem (material, particleCount) {
 		}
 
 		// Generate random velocities based on range defined
-		const vY = THREE.MathUtils.randFloat(-options.velocityY - 0.1, Math.min(-options.velocityY + 0.1, -0.1));
-		const aX = THREE.MathUtils.randFloat(-options.amplitudeX - 0.1, Math.min(-options.amplitudeX + 0.1, -0.1));
+		const vY = THREE.MathUtils.randFloat(-options.velocityY - 1, Math.min(-options.velocityY + 1, 0));
+		const aX = THREE.MathUtils.randFloat(Math.max(options.amplitudeX - 1, 0), options.amplitudeX + 1);
 		const a = THREE.MathUtils.randFloat(options.angleX - 0.1, options.angleX + 0.1);
 
 		velocityY.push(vY);
@@ -147,7 +147,6 @@ function newParticleSystem (material, particleCount) {
 	bufferGeometry.setAttribute('amplitudeX', new THREE.Float32BufferAttribute(amplitudeX, 1));
 	bufferGeometry.setAttribute('velocityY', new THREE.Float32BufferAttribute(velocityY, 1));
 	bufferGeometry.setAttribute('angle', new THREE.Float32BufferAttribute(angle, 1));
-	bufferGeometry.attributes.position.needsUpdate = true;
 	bufferGeometry.attributes.scale.needsUpdate = true;
 
 	return new THREE.Points(bufferGeometry, material);
@@ -167,7 +166,6 @@ function newParticleMaterial (size, sprite) {
 			[{
 				uTime: { value: 0 },
 				size: { value: size },
-				amount: { value: options.particleCount },
 				rangeY: { value: options.rangeY },
 				map: { value: sprite },
 				alphaTest: { value: options.alphaTest },
@@ -190,6 +188,15 @@ function newParticleMaterial (size, sprite) {
 function onWindowResize() {
 	windowWidth = window.visualViewport.width;
 	windowHeight = window.visualViewport.height;
+
+	// Update particle scale attribute based on window height
+	scale = windowHeight;
+
+	for (let i = 0; i < scene.children.length; i++) {
+		const child = scene.children[i];
+		const scales = new Float32Array(child.geometry.getAttribute('position').count).fill(scale);
+		child.geometry.setAttribute('scale', new THREE.Float32BufferAttribute(scales, 1));
+	}
 
 	camera.aspect = windowWidth / windowHeight;
 	camera.updateProjectionMatrix();

@@ -3,7 +3,6 @@ export default ` /* GLSL */
 
 uniform float uTime;
 uniform float size;
-uniform float amount;
 uniform float rangeY;
 
 attribute float scale;
